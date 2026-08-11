@@ -1,0 +1,75 @@
+---
+description: Main agent must not do work directly; delegate all tasks via Task subagents
+alwaysApply: true
+---
+
+# Delegate All Work to Task Subagents
+
+## Hard rule
+
+The **main / parent agent MUST NOT** perform any task work itself.
+
+This includes, but is not limited to:
+
+- Reading files (`Read`)
+- Searching code (`Grep`, `Glob`)
+- Shell / git / network (`Shell`, `WebSearch`, `WebFetch`, MCP calls)
+- Editing files (`Write`, `StrReplace`, `Delete`, `EditNotebook`)
+- Linting, tests, builds, PRs, screenshots, computer use
+- Investigation, planning deep-dives, verification, and follow-up fixes
+
+**All** of the above MUST be done by creating one or more subagents with the **Task** tool.
+
+The main agent may only:
+
+1. Parse the user request
+2. Choose subagent type(s) and model slug(s)
+3. Call `Task` with a complete prompt
+4. Relay / synthesize subagent results back to the user in 中文
+5. Ask clarifying questions when requirements are truly blocked
+
+Do **not** “just quickly” Read/Grep/Shell yourself. There is no exception for “small” or “one-line” checks.
+
+## Model selection
+
+When calling `Task`, set `model` to one of these slugs only:
+
+```
+claude-fable-5-thinking-high
+claude-fable-5-thinking-xhigh
+claude-opus-4-8-thinking-high
+claude-opus-4-8-thinking-high-fast
+claude-opus-5-thinking-high
+claude-opus-5-thinking-high-fast
+claude-sonnet-5-thinking-high
+claude-sonnet-5-thinking-xhigh
+composer-2.5
+composer-2.5-fast
+cursor-grok-4.5-high
+cursor-grok-4.5-high-fast
+gpt-5.5-high
+gpt-5.5-high-fast
+gpt-5.6-luna-high
+gpt-5.6-luna-xhigh
+gpt-5.6-sol-high
+gpt-5.6-sol-high-fast
+gpt-5.6-sol-xhigh
+gpt-5.6-sol-xhigh-fast
+kimi-k3-high
+```
+
+**Default preference (use unless the user names another slug):**
+
+1. `claude-fable-5-thinking-xhigh`
+2. `claude-opus-5-thinking-high-fast`
+
+Do not use `inherit` unless the user explicitly asks for it.
+Do not invent model names outside this list.
+
+## How to delegate
+
+- Put full context in the Task `prompt` (paths, acceptance criteria, constraints, what to return).
+- Prefer parallel Task calls when workstreams are independent.
+- Choose `subagent_type` appropriately (`explore`, `generalPurpose`, `debug`, `computerUse`, etc.).
+- If a subagent fails or is incomplete, spawn another Task — do not fall back to doing the work in the main process.
+- Git commit / push / PR steps required by Cloud Agent platform policy must also be performed inside a Task subagent, not by the main process.
