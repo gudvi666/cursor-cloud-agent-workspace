@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notes — Cursor Cloud Agent Workspace</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Notes</h1>
+        <p class="app__subtitle">
+          A tiny full-stack demo running in the Cloud Agent environment.
+        </p>
+      </header>
+
+      <form id="note-form" class="note-form" autocomplete="off">
+        <label class="visually-hidden" for="note-input">New note</label>
+        <input
+          id="note-input"
+          name="text"
+          type="text"
+          class="note-form__input"
+          placeholder="Write a note and press Add…"
+          maxlength="280"
+          required
+        />
+        <button type="submit" class="note-form__button">Add</button>
+      </form>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <ul id="notes" class="notes" aria-live="polite"></ul>
+      <p id="empty" class="notes__empty">No notes yet. Add your first one!</p>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

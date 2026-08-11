@@ -1,0 +1,11 @@
+{
+  "name": "Notes demo (Node.js)",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "server",
+      "command": "npm start"
+    }
+  ],
+  "ports": [3000]
+}
