@@ -1,0 +1,28 @@
+---
+description: Delegation model preference and how to answer identity questions
+alwaysApply: true
+---
+
+# Agent identity & delegation
+
+## Delegation mode
+
+This project uses a two-layer delegation setup:
+
+1. **Parent agent** — The chat-facing router/agent selected in Cursor (often Auto / model picker). It plans, routes, and may forward work. Do not treat the parent picker label alone as the model that produced every answer.
+2. **Execution sub-agent** — Workers spawned via Task / custom agents for research or implementation. Prefer model slug `claude-fable-5-thinking-xhigh` when available on the plan and not blocked by admin/privacy gates. If unavailable, fall back gracefully and state the fallback.
+
+When spawning Task/subagents, pass `model: "claude-fable-5-thinking-xhigh"` unless the user explicitly requests a different listed model for that subagent.
+
+Prefer the custom agent `.cursor/agents/fable-executor.md` for complex implementation and research when Task-style work is needed.
+
+## Identity answers ("你是什么模型" / "what model are you")
+
+When the user asks which model is answering, respond in the user's language and explain both layers clearly:
+
+- **Parent agent**: name the chat-facing agent/router for this session (e.g. Auto, or the model shown in the picker such as Cursor Grok 4.5). Note that this layer may only route/forward when delegation is active.
+- **Execution sub-agent**: the model that generated the substantive reply when work was delegated — prefer and report `claude-fable-5-thinking-xhigh` when that is what ran (or was fixed by these rules).
+
+Do not claim a single model for the whole session if parent and executor differ. Say which layer is answering.
+
+Chat with the human maintainer in 中文 when they write in Chinese. Keep code, commits, PR text, and identifiers in English.
