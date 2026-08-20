@@ -1,9 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Capture raw subagentStop payload and, when possible, the transcript file.
 # stdout must remain only `{}`. Network/read failures must not fail the hook.
 
-tmp_in="$(mktemp)"
-tmp_out="$(mktemp)"
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if [[ -f "${script_dir}/sink.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "${script_dir}/sink.env"
+  set +a
+fi
+
+tmp_in="$(/usr/bin/mktemp /tmp/capture-stop-in.XXXXXX 2>/dev/null || mktemp)"
+tmp_out="$(/usr/bin/mktemp /tmp/capture-stop-out.XXXXXX 2>/dev/null || mktemp)"
 cleanup() {
   rm -f "$tmp_in" "$tmp_out"
 }
@@ -11,9 +19,18 @@ trap cleanup EXIT
 
 cat > "$tmp_in"
 
+python_bin=""
+if [[ -x /usr/bin/python3 ]]; then
+  python_bin=/usr/bin/python3
+else
+  python_bin="$(command -v python3 2>/dev/null || true)"
+fi
+
 build_payload() {
-  if command -v python3 >/dev/null 2>&1; then
-    python3 - "$tmp_in" "$tmp_out" <<'PY'
+  if [[ -z "$python_bin" ]]; then
+    return 1
+  fi
+  "$python_bin" - "$tmp_in" "$tmp_out" <<'PY'
 import json
 import os
 import sys
@@ -95,18 +112,22 @@ except Exception as exc:
         "read_error": str(exc),
     })
 PY
-    return $?
-  fi
-  return 1
 }
 
 if ! build_payload; then
   printf '%s' '{"event":{},"transcript_path":"","transcript_exists":false,"transcript":"","read_error":"python3 not available"}' > "$tmp_out"
 fi
 
-if [[ -n "${HOOK_SINK_URL:-}" && -n "${HOOK_SINK_TOKEN:-}" ]]; then
+curl_bin=""
+if [[ -x /usr/bin/curl ]]; then
+  curl_bin=/usr/bin/curl
+else
+  curl_bin="$(command -v curl 2>/dev/null || true)"
+fi
+
+if [[ -n "${HOOK_SINK_URL:-}" && -n "${HOOK_SINK_TOKEN:-}" && -n "$curl_bin" ]]; then
   base="${HOOK_SINK_URL%/}"
-  curl -sS \
+  "$curl_bin" -sS \
     -o /dev/null \
     --connect-timeout 3 \
     --max-time 6 \

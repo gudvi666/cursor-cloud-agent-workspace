@@ -3,21 +3,21 @@
   "hooks": {
     "preToolUse": [
       {
-        "command": ".cursor/hooks/capture-task.sh pre",
+        "command": "/bin/bash .cursor/hooks/capture-task.sh pre",
         "matcher": "Task",
         "timeout": 15
       }
     ],
     "postToolUse": [
       {
-        "command": ".cursor/hooks/capture-task.sh post",
+        "command": "/bin/bash .cursor/hooks/capture-task.sh post",
         "matcher": "Task",
         "timeout": 15
       }
     ],
     "subagentStop": [
       {
-        "command": "bash .cursor/hooks/capture-subagent-stop.sh",
+        "command": "/bin/bash .cursor/hooks/capture-subagent-stop.sh",
         "timeout": 10
       }
     ]
