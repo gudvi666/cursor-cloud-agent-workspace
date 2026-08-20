@@ -19,7 +19,10 @@ function send(res, status, body = "") {
 const server = http.createServer((req, res) => {
   const url = req.url || "";
 
-  if (req.method !== "POST" || (url !== "/pre" && url !== "/post")) {
+  if (
+    req.method !== "POST" ||
+    (url !== "/pre" && url !== "/post" && url !== "/subagent-stop")
+  ) {
     send(res, 404, "{\"error\":\"not_found\"}");
     return;
   }

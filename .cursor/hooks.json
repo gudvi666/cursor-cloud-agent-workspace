@@ -14,6 +14,12 @@
         "matcher": "Task",
         "timeout": 15
       }
+    ],
+    "subagentStop": [
+      {
+        "command": "bash .cursor/hooks/capture-subagent-stop.sh",
+        "timeout": 10
+      }
     ]
   }
 }
